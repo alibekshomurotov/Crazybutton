@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Royxatdan otish & Kirish | Qochadigan Tugma</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 20% 30%, #0a0a0a, #000000);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(30,30,40,0.4) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+            animation: slowDrift 20s ease-in-out infinite;
+        }
+
+        @keyframes slowDrift {
+            0% { transform: translateX(-10%) translateY(-5%); opacity: 0.5; }
+            50% { transform: translateX(10%) translateY(5%); opacity: 0.8; }
+            100% { transform: translateX(-10%) translateY(-5%); opacity: 0.5; }
+        }
+
+        .container {
+            background: rgba(8, 8, 12, 0.65);
+            backdrop-filter: blur(20px);
+            border-radius: 64px;
+            padding: 38px 40px 48px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.05);
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255,215,130,0.15);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px;
+            border-radius: 80px;
+            backdrop-filter: blur(8px);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 14px 0;
+            border-radius: 60px;
+            color: #aaa9c2;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            letter-spacing: 0.5px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, #f0a34b, #ffdd88);
+            transition: 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .tab-btn.active::before {
+            width: 60%;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #1e1e2a, #2a2a36);
+            color: #ffdd99;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+            text-shadow: 0 0 4px rgba(255,200,100,0.5);
+        }
+
+        .form-panel {
+            display: none;
+            animation: glitchFade 0.4s ease;
+        }
+
+        .form-panel.active-panel {
+            display: block;
+        }
+
+        @keyframes glitchFade {
+            0% { opacity: 0; transform: translateY(12px) scale(0.98); filter: blur(2px);}
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0);}
+        }
+
+        .input-group {
+            margin-bottom: 26px;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #cdcbe5;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 22px;
+            font-size: 1rem;
+            background: rgba(20, 20, 28, 0.9);
+            border: 1.5px solid rgba(255, 200, 120, 0.2);
+            border-radius: 44px;
+            outline: none;
+            font-weight: 500;
+            transition: 0.25s;
+            color: #f5f0e0;
+            font-family: inherit;
+            backdrop-filter: blur(4px);
+        }
+
+        .input-group input:focus {
+            border-color: #ffbc6e;
+            background: #12121a;
+            box-shadow: 0 0 0 4px rgba(255, 180, 80, 0.2), inset 0 0 8px rgba(255,180,80,0.1);
+        }
+
+        .input-group input::placeholder {
+            color: #5a5a7a;
+            font-weight: 400;
+        }
+
+        .submit-area {
+            position: relative;
+            margin-top: 38px;
+            min-height: 85px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .runaway-btn {
+            position: fixed;
+            background: linear-gradient(125deg, #2c2c3a, #1a1a24);
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 80px;
+            color: #ffeaC0;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 200, 100, 0.3), inset 0 1px 2px rgba(255,255,255,0.1);
+            min-width: 200px;
+            text-align: center;
+            letter-spacing: 1px;
+            z-index: 9999;
+            backdrop-filter: blur(12px);
+            transition: left 0.07s cubic-bezier(0.2, 0.9, 0.6, 1.1), top 0.07s cubic-bezier(0.2, 0.9, 0.6, 1.1);
+            white-space: nowrap;
+            font-family: 'Poppins', monospace;
+        }
+
+        .runaway-btn:hover {
+            filter: brightness(1.2);
+            text-shadow: 0 0 6px #ffbe76;
+        }
+
+        .runaway-btn:active {
+            transform: scale(0.96);
+        }
+
+        .glow-dot {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,160,60,0.1), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatGlow 15s infinite alternate;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(-10%, -10%); opacity: 0.3; }
+            100% { transform: translate(20%, 20%); opacity: 0.7; }
+        }
+
+        @media (max-width: 550px) {
+            .container { padding: 24px 22px 32px; margin: 10px; }
+            .runaway-btn { padding: 12px 24px; font-size: 1rem; min-width: 170px; }
+            .tab-btn { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="glow-dot" style="top: -100px; left: -100px;"></div>
+<div class="glow-dot" style="bottom: -50px; right: -50px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(80,60,180,0.08), transparent 70%);"></div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="register">✦ RO'YXAT ✦</button>
+        <button class="tab-btn" data-tab="login">⚡ KIRISH ⚡</button>
+    </div>
+
+    <div id="registerPanel" class="form-panel active-panel">
+        <div class="input-group">
+            <label>🌟 To'liq ism</label>
+            <input type="text" id="regFullname" placeholder="Masalan: Jasurbek Karimov" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>📧 Elektron pochta</label>
+            <input type="email" id="regEmail" placeholder="siz@domain.com" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>🔐 Parol (4+ belgi)</label>
+            <input type="password" id="regPassword" placeholder="●●●●●●">
+        </div>
+        <div class="submit-area" id="regSubmitArea"></div>
+    </div>
+
+    <div id="loginPanel" class="form-panel">
+        <div class="input-group">
+            <label>👤 Email yoki login</label>
+            <input type="text" id="loginEmail" placeholder="Email yoki ism" autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>🗝️ Parol</label>
+            <input type="password" id="loginPassword" placeholder="Parolingiz">
+        </div>
+        <div class="submit-area" id="loginSubmitArea"></div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const regPanel = document.getElementById('registerPanel');
+        const loginPanel = document.getElementById('loginPanel');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        
+        const regFullname = document.getElementById('regFullname');
+        const regEmail = document.getElementById('regEmail');
+        const regPassword = document.getElementById('regPassword');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        
+        const regContainer = document.getElementById('regSubmitArea');
+        const loginContainer = document.getElementById('loginSubmitArea');
+        
+        let regBtn = null;
+        let loginBtn = null;
+        
+        function isRegisterValid() {
+            const name = regFullname.value.trim();
+            const email = regEmail.value.trim();
+            const pass = regPassword.value.trim();
+            const emailValid = email.includes('@') && email.includes('.') && email.length > 4;
+            return (name !== '' && emailValid && pass.length >= 4);
+        }
+        
+        function isLoginValid() {
+            const loginId = loginEmail.value.trim();
+            const pass = loginPassword.value.trim();
+            return (loginId !== '' && pass !== '');
+        }
+        
+        function jumpToRandomWorld(btn) {
+            if(!btn) return;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            const btnW = btn.offsetWidth;
+            const btnH = btn.offsetHeight;
+            
+            let maxLeft = winW - btnW;
+            let maxTop = winH - btnH;
+            if(maxLeft < 5) maxLeft = winW * 0.6;
+            if(maxTop < 5) maxTop = winH * 0.6;
+            
+            let newLeft = Math.random() * maxLeft;
+            let newTop = Math.random() * maxTop;
+            newLeft = Math.min(maxLeft, Math.max(8, newLeft));
+            newTop = Math.min(maxTop, Math.max(8, newTop));
+            
+            btn.style.left = newLeft + 'px';
+            btn.style.top = newTop + 'px';
+            btn.style.position = 'fixed';
+        }
+        
+        // Tugmani container markaziga joylashtiruvchi funksiya
+        function centerButtonInContainer(btn, container) {
+            if(!btn || !container) return;
+            const rect = container.getBoundingClientRect();
+            const btnWidth = btn.offsetWidth;
+            const btnHeight = btn.offsetHeight;
+            const leftPos = rect.left + (rect.width / 2) - (btnWidth / 2);
+            const topPos = rect.top + (rect.height / 2) - (btnHeight / 2);
+            btn.style.left = Math.max(8, leftPos) + 'px';
+            btn.style.top = Math.max(8, topPos) + 'px';
+            btn.style.position = 'fixed';
+        }
+        
+        function createNeoButton(container, text, isValidFunc, successCallback) {
+            // Eski tugmani o'chirish
+            const oldBtn = document.querySelector('.runaway-btn[data-container]');
+            if(oldBtn && oldBtn.getAttribute('data-container') === container.id) {
+                oldBtn.remove();
+            }
+            
+            const btn = document.createElement('button');
+            btn.className = 'runaway-btn';
+            btn.textContent = text;
+            btn.setAttribute('data-container', container.id);
+            btn.style.position = 'fixed';
+            
+            document.body.appendChild(btn);
+            
+            // Markazga joylashtirish (bir oz kechikish bilan to'liq o'lcham olish uchun)
+            setTimeout(() => {
+                centerButtonInContainer(btn, container);
+            }, 30);
+            
+            const onMouseEnter = (e) => {
+                if(!isValidFunc()) {
+                    jumpToRandomWorld(btn);
+                }
+            };
+            
+            const onClick = (e) => {
+                if(!isValidFunc()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    jumpToRandomWorld(btn);
+                    return false;
+                } else {
+                    e.preventDefault();
+                    if(successCallback) successCallback();
+                    return true;
+                }
+            };
+            
+            btn.removeEventListener('mouseenter', onMouseEnter);
+            btn.removeEventListener('click', onClick);
+            btn.addEventListener('mouseenter', onMouseEnter);
+            btn.addEventListener('click', onClick);
+            
+            btn.returnToCenter = () => {
+                if(isValidFunc()) {
+                    centerButtonInContainer(btn, container);
+                }
+            };
+            
+            return btn;
+        }
+        
+        function regSuccess() {
+            alert("✨ Tabriklaymiz! Ro'yxatdan o'tdingiz ✨");
+            if(confirm("Maydonlarni tozalaysizmi?")) {
+                regFullname.value = '';
+                regEmail.value = '';
+                regPassword.value = '';
+                if(regBtn) {
+                    centerButtonInContainer(regBtn, regContainer);
+                }
+            }
+        }
+        
+        function loginSuccess() {
+            alert("🔓 Xush kelibsiz! Tizimga kirdingiz.");
+            if(confirm("Maydonlarni tozalaysizmi?")) {
+                loginEmail.value = '';
+                loginPassword.value = '';
+                if(loginBtn) {
+                    centerButtonInContainer(loginBtn, loginContainer);
+                }
+            }
+        }
+        
+        function bindInputReset() {
+            const regInputs = [regFullname, regEmail, regPassword];
+            regInputs.forEach(inp => {
+                inp.addEventListener('input', () => {
+                    if(isRegisterValid() && regBtn) {
+                        regBtn.returnToCenter();
+                    }
+                });
+            });
+            const loginInputs = [loginEmail, loginPassword];
+            loginInputs.forEach(inp => {
+                inp.addEventListener('input', () => {
+                    if(isLoginValid() && loginBtn) {
+                        loginBtn.returnToCenter();
+                    }
+                });
+            });
+        }
+        
+        let currentTab = 'register';
+        function switchTab(tabId) {
+            currentTab = tabId;
+            if(tabId === 'register') {
+                regPanel.classList.add('active-panel');
+                loginPanel.classList.remove('active-panel');
+                tabBtns[0].classList.add('active');
+                tabBtns[1].classList.remove('active');
+            } else {
+                loginPanel.classList.add('active-panel');
+                regPanel.classList.remove('active-panel');
+                tabBtns[1].classList.add('active');
+                tabBtns[0].classList.remove('active');
+            }
+            
+            // Tugmalarni ko'rinishini boshqarish va markazga joylash
+            if(regBtn) {
+                regBtn.style.display = (tabId === 'register') ? 'block' : 'none';
+                if(tabId === 'register') {
+                    setTimeout(() => {
+                        centerButtonInContainer(regBtn, regContainer);
+                    }, 50);
+                }
+            }
+            if(loginBtn) {
+                loginBtn.style.display = (tabId === 'login') ? 'block' : 'none';
+                if(tabId === 'login') {
+                    setTimeout(() => {
+                        centerButtonInContainer(loginBtn, loginContainer);
+                    }, 50);
+                }
+            }
+        }
+        
+        // Tugmalarni yaratish
+        regBtn = createNeoButton(regContainer, '✦ RO\'YXATDAN O\'TISH ✦', isRegisterValid, regSuccess);
+        loginBtn = createNeoButton(loginContainer, '⚡ KIRISH ⚡', isLoginValid, loginSuccess);
+        
+        // Boshlang'ich holat: ro'yxat tugmasi ko'rinadi, kirish tugmasi yashirin
+        setTimeout(() => {
+            if(regBtn) {
+                centerButtonInContainer(regBtn, regContainer);
+                regBtn.style.display = 'block';
+            }
+            if(loginBtn) {
+                centerButtonInContainer(loginBtn, loginContainer);
+                loginBtn.style.display = 'none';
+            }
+        }, 50);
+        
+        // Tab tugmalariga event listener
+        tabBtns[0].addEventListener('click', () => switchTab('register'));
+        tabBtns[1].addEventListener('click', () => switchTab('login'));
+        
+        bindInputReset();
+        
+        // Oyna o'lchami o'zgarganda tugmani markazga qaytar
+        window.addEventListener('resize', () => {
+            if(currentTab === 'register' && regBtn) {
+                centerButtonInContainer(regBtn, regContainer);
+            }
+            if(currentTab === 'login' && loginBtn) {
+                centerButtonInContainer(loginBtn, loginContainer);
+            }
+        });
+    })();
+</script>
+</body>
+</html>
